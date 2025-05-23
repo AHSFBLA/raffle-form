@@ -82,6 +82,9 @@
       <label for="quantity">Number of Tickets</label>
       <input type="number" id="quantity" min="1" value="1" required />
 
+      <label for="paypalTxn">PayPal Transaction ID</label>
+      <input type="text" id="paypalTxn" required />
+
       <button type="submit">Submit</button>
     </form>
 
@@ -92,10 +95,16 @@
   <script>
     const form = document.getElementById('raffleForm');
     const entryList = document.getElementById('entryList');
+    const googleSheetURL = 'YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE';
+
     let entries = [];
 
     function generateTicketCode() {
       return 'TKT-' + Math.floor(100000 + Math.random() * 900000);
+    }
+
+    function isValidPaypalTxn(txn) {
+      return txn && txn.length >= 10;
     }
 
     function renderEntries() {
@@ -103,54 +112,50 @@
       entries.forEach(entry => {
         const div = document.createElement('div');
         div.className = 'ticket';
-        div.innerHTML = `<strong>${entry.name}</strong> (${entry.email})<br/>Tickets: ${entry.tickets.join(', ')}`;
+        div.innerHTML = `<strong>${entry.name}</strong> (${entry.email})<br/>Tickets: ${entry.tickets.join(', ')}<br/>PayPal TXN: ${entry.paypalTxn}`;
         entryList.appendChild(div);
       });
     }
-const googleSheetURL = 'https://script.google.com/macros/s/AKfycbwurlPH3BYFnxZM3fQYf6rEk2BQvxmT-5ncNTp30RwZb-HBLDXchjpesMmvicEahkk2/exec';
 
-form.addEventListener('submit', function(e) {
-  e.preventDefault();
-  const name = document.getElementById('name').value.trim();
-  const email = document.getElementById('email').value.trim();
-  const quantity = parseInt(document.getElementById('quantity').value);
-  const paypalTxn = document.getElementById('paypalTxn').value.trim();
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const name = document.getElementById('name').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const quantity = parseInt(document.getElementById('quantity').value);
+      const paypalTxn = document.getElementById('paypalTxn').value.trim();
 
-  if (!isValidPaypalTxn(paypalTxn)) {
-    alert('Please enter a valid PayPal transaction ID.');
-    return;
-  }
+      if (!isValidPaypalTxn(paypalTxn)) {
+        alert('Please enter a valid PayPal transaction ID.');
+        return;
+      }
 
-  const tickets = [];
-  for (let i = 0; i < quantity; i++) {
-    tickets.push(generateTicketCode());
-  }
+      const tickets = [];
+      for (let i = 0; i < quantity; i++) {
+        tickets.push(generateTicketCode());
+      }
 
-  const entry = { name, email, tickets, paypalTxn };
+      const entry = { name, email, tickets, paypalTxn };
 
-  // Send data to Google Sheet
-  fetch(googleSheetURL, {
-    method: 'POST',
-    body: JSON.stringify(entry),
-    headers: {
-      'Content-Type': 'application/json'
-    }
-  })
-  .then(response => response.json())
-  .then(data => {
-    if (data.result === "success") {
-      entries.push(entry);
-      renderEntries();
-      form.reset();
-    } else {
-      alert('Failed to save entry: ' + data.message);
-    }
-  })
-  .catch(err => {
-    alert('Error saving entry: ' + err.message);
-  });
-});
-
+      fetch(googleSheetURL, {
+        method: 'POST',
+        body: JSON.stringify(entry),
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.result === "success") {
+          entries.push(entry);
+          renderEntries();
+          form.reset();
+        } else {
+          alert('Failed to save entry: ' + data.message);
+        }
+      })
+      .catch(err => {
+        alert('Error saving entry: ' + err.message);
+      });
     });
   </script>
 </body>
