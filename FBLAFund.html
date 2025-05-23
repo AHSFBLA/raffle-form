@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Raffle Ticket Entry</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; }
+    form { margin-bottom: 20px; }
+    input, button { margin: 5px 0; padding: 8px; width: 100%; max-width: 400px; }
+    .entry-list { margin-top: 20px; }
+    .ticket { background: #f0f0f0; margin: 5px 0; padding: 10px; border-radius: 4px; }
+  </style>
+</head>
+<body>
+  <h1>Raffle Ticket Form</h1>
+  <form id="raffleForm">
+    <label for="name">Name:</label><br />
+    <input type="text" id="name" required /><br />
+
+    <label for="email">Email:</label><br />
+    <input type="email" id="email" required /><br />
+
+    <label for="quantity">Number of Tickets:</label><br />
+    <input type="number" id="quantity" min="1" value="1" required /><br />
+
+    <button type="submit">Submit</button>
+  </form>
+
+  <h2>Entries</h2>
+  <div id="entryList" class="entry-list"></div>
+
+  <script>
+    const form = document.getElementById('raffleForm');
+    const entryList = document.getElementById('entryList');
+    let entries = [];
+
+    function generateTicketCode() {
+      return 'TKT-' + Math.floor(100000 + Math.random() * 900000);
+    }
+
+    function renderEntries() {
+      entryList.innerHTML = '';
+      entries.forEach((entry, i) => {
+        const div = document.createElement('div');
+        div.className = 'ticket';
+        div.innerHTML = `<strong>${entry.name}</strong> (${entry.email})<br/>Tickets: ${entry.tickets.join(', ')}`;
+        entryList.appendChild(div);
+      });
+    }
+
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const name = document.getElementById('name').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const quantity = parseInt(document.getElementById('quantity').value);
+
+      const tickets = [];
+      for (let i = 0; i < quantity; i++) {
+        tickets.push(generateTicketCode());
+      }
+
+      entries.push({ name, email, tickets });
+      renderEntries();
+
+      form.reset();
+    });
+  </script>
+</body>
+</html>
