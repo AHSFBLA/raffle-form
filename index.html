@@ -107,21 +107,50 @@
         entryList.appendChild(div);
       });
     }
+const googleSheetURL = 'https://script.google.com/macros/s/AKfycbwurlPH3BYFnxZM3fQYf6rEk2BQvxmT-5ncNTp30RwZb-HBLDXchjpesMmvicEahkk2/exec';
 
-    form.addEventListener('submit', function(e) {
-      e.preventDefault();
-      const name = document.getElementById('name').value.trim();
-      const email = document.getElementById('email').value.trim();
-      const quantity = parseInt(document.getElementById('quantity').value);
+form.addEventListener('submit', function(e) {
+  e.preventDefault();
+  const name = document.getElementById('name').value.trim();
+  const email = document.getElementById('email').value.trim();
+  const quantity = parseInt(document.getElementById('quantity').value);
+  const paypalTxn = document.getElementById('paypalTxn').value.trim();
 
-      const tickets = [];
-      for (let i = 0; i < quantity; i++) {
-        tickets.push(generateTicketCode());
-      }
+  if (!isValidPaypalTxn(paypalTxn)) {
+    alert('Please enter a valid PayPal transaction ID.');
+    return;
+  }
 
-      entries.push({ name, email, tickets });
+  const tickets = [];
+  for (let i = 0; i < quantity; i++) {
+    tickets.push(generateTicketCode());
+  }
+
+  const entry = { name, email, tickets, paypalTxn };
+
+  // Send data to Google Sheet
+  fetch(googleSheetURL, {
+    method: 'POST',
+    body: JSON.stringify(entry),
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.result === "success") {
+      entries.push(entry);
       renderEntries();
       form.reset();
+    } else {
+      alert('Failed to save entry: ' + data.message);
+    }
+  })
+  .catch(err => {
+    alert('Error saving entry: ' + err.message);
+  });
+});
+
     });
   </script>
 </body>
