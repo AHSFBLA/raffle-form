@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Raffle Ticket Entry</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f9fafb;
+      margin: 0;
+      padding: 40px 20px;
+      display: flex;
+      justify-content: center;
+    }
+
+    .container {
+      background: white;
+      padding: 30px;
+      max-width: 500px;
+      width: 100%;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    h1, h2 {
+      font-weight: 600;
+      color: #333;
+    }
+
+    label {
+      font-weight: 600;
+      margin-top: 10px;
+      display: block;
+    }
+
+    input, button {
+      width: 100%;
+      padding: 10px;
+      margin: 6px 0 16px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      font-size: 16px;
+    }
+
+    button {
+      background-color: #4f46e5;
+      color: white;
+      border: none;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #4338ca;
+    }
+
+    .entry-list {
+      margin-top: 30px;
+    }
+
+    .ticket {
+      background: #f3f4f6;
+      margin: 10px 0;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🎟️ Enter the Raffle</h1>
+    <form id="raffleForm">
+      <label for="name">Name</label>
+      <input type="text" id="name" required />
+
+      <label for="email">Email</label>
+      <input type="email" id="email" required />
+
+      <label for="quantity">Number of Tickets</label>
+      <input type="number" id="quantity" min="1" value="1" required />
+
+      <button type="submit">Submit</button>
+    </form>
+
+    <h2>🎫 Entries</h2>
+    <div id="entryList" class="entry-list"></div>
+  </div>
+
+  <script>
+    const form = document.getElementById('raffleForm');
+    const entryList = document.getElementById('entryList');
+    let entries = [];
+
+    function generateTicketCode() {
+      return 'TKT-' + Math.floor(100000 + Math.random() * 900000);
+    }
+
+    function renderEntries() {
+      entryList.innerHTML = '';
+      entries.forEach(entry => {
+        const div = document.createElement('div');
+        div.className = 'ticket';
+        div.innerHTML = `<strong>${entry.name}</strong> (${entry.email})<br/>Tickets: ${entry.tickets.join(', ')}`;
+        entryList.appendChild(div);
+      });
+    }
+
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const name = document.getElementById('name').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const quantity = parseInt(document.getElementById('quantity').value);
+
+      const tickets = [];
+      for (let i = 0; i < quantity; i++) {
+        tickets.push(generateTicketCode());
+      }
+
+      entries.push({ name, email, tickets });
+      renderEntries();
+      form.reset();
+    });
+  </script>
+</body>
+</html>
